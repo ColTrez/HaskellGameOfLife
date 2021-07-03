@@ -3,6 +3,7 @@ module Main where
 import Graphics.Gloss
 import Data.Word
 import Data.ByteString (ByteString, pack)
+import Data.List
 
 main :: IO ()
 main = display window background drawing
@@ -12,7 +13,7 @@ main = display window background drawing
         drawing = frame
 
 --matrix definitions
-type Pos = (Int,Int) --(row,column)
+type Pos = (Int,Int)--(row,column)
 
 type Matrix = [[(Pos,Bool)]] --represented as a list of row vectors containing (Position, alive?)
 
@@ -28,16 +29,40 @@ generateRows conf = [(pos, if pos `elem` conf then True else False) | pos <- pos
 
 testMatrix :: Matrix
 testMatrix = makeMatrix rows
-            where
-               makeMatrix :: [(Pos,Bool)] -> Matrix
-               makeMatrix [] = []
-               makeMatrix rs = (take 100 rs) : (makeMatrix (drop 100 rs))
+
+makeMatrix :: [(Pos,Bool)] -> Matrix
+makeMatrix [] = []
+makeMatrix rs = (take 100 rs) : (makeMatrix (drop 100 rs))
 
 repeatRows :: Matrix -> Matrix --copies rows 8 times so that 8 pixels high are drawn instead of 1
 repeatRows m = concat $ map (replicate 8) m
 
 testMatrix' :: Matrix
 testMatrix' = repeatRows testMatrix
+
+--Life functions
+living :: Matrix -> [Pos]
+living m = [fst p | p <- concat m, snd p == True]
+
+surviving :: [Pos] -> [Pos]
+surviving livings = [p | p <- livings, (length (intersect livings (neighbors p)) == 2 ||
+                                        length (intersect livings (neighbors p))  == 3)]
+
+beingBorn :: [Pos] -> [Pos]
+beingBorn livings = [p | p <- candidates, length (union candidates (neighbors p)) == 2]
+                    where
+                        candidates = (concat $ map neighbors livings) \\ livings
+
+neighbors :: Pos -> [Pos]
+neighbors p = map wrap [(x,y) | x <- [fst p-1, fst p, fst p+1], y <- [snd p-1, snd p, snd p+1], (x,y) /= p]
+            where
+                wrap (x,y) = (((x-1) `mod` screenSize) + 1,
+                              ((y-1) `mod` screenSize) + 1)
+
+nextGen :: Matrix -> Matrix
+nextGen m = makeMatrix $ generateRows (surviving l ++ beingBorn l)
+            where
+                l = living m
 
 --Constants
 screenSize :: Int
