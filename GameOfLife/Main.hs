@@ -11,7 +11,7 @@ main :: IO ()
 --        window = InWindow "Conway's Game of Life" (screenSize, screenSize) (20, 20)
 --        background = black
 --        drawing = frame
-main = simulate window black 1 testMatrix drawFrame simulateNext
+main = simulate window white 1 testMatrix drawFrame simulateNext
     where
         window = InWindow "Conway's Game of Life" (screenSize, screenSize) (20, 20)
 
