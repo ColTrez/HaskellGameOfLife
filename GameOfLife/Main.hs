@@ -6,11 +6,16 @@ import Data.ByteString (ByteString, pack)
 import Data.List
 
 main :: IO ()
-main = display window background drawing
+--main = display window background drawing
+--    where
+--        window = InWindow "Conway's Game of Life" (screenSize, screenSize) (20, 20)
+--        background = black
+--        drawing = frame
+main = simulate window black 1 testMatrix drawFrame simulateNext
     where
         window = InWindow "Conway's Game of Life" (screenSize, screenSize) (20, 20)
-        background = black
-        drawing = frame
+
+type Model = Matrix
 
 --matrix definitions
 type Pos = (Int,Int)--(row,column)
@@ -64,6 +69,9 @@ nextGen m = makeMatrix $ generateRows (surviving l ++ beingBorn l)
             where
                 l = living m
 
+--simulateNext :: ViewPort -> Float -> Matrix -> Matrix
+simulateNext _ _  = nextGen
+
 --Constants
 screenSize :: Int
 screenSize = 800
@@ -73,6 +81,12 @@ cellSize = screenSize `div` 10
 
 frame :: Picture
 frame = bitmapOfByteString screenSize screenSize (BitmapFormat TopToBottom PxRGBA) bitmapData True
+
+drawFrame :: Matrix -> Picture
+drawFrame m = bitmapOfByteString screenSize screenSize (BitmapFormat TopToBottom PxRGBA) frame True
+            where
+                frame = pack $ take ((*4) $ screenSize ^ 2) getPixels
+                getPixels = concat [if bool == True then (take 32 (cycle livePixel)) else take 32 (cycle deadPixel) | bool <- map snd (concat m)]
 
 livePixel :: [Word8]
 livePixel = [0,128,16,128] --RGBA Green
