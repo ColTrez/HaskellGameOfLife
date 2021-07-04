@@ -13,7 +13,7 @@ main = simulate window black 1 initialConfiguration render nextGeneration
         window = InWindow "Conway's Game of Life" (screenSize, screenSize) (20, 20)
         
         initialConfiguration :: [Pos]
-        initialConfiguration = map (\(x,y) -> (x+4,y+4)) [(4,2),(2,3),(4,3),(3,4),(4,4)]
+        initialConfiguration = [(4,2),(2,3),(4,3),(3,4),(4,4)]
         
         scaleModel :: [Pos] -> [Pos]
         scaleModel ps = map (\(x,y) -> (x*8,y*8)) ps
@@ -35,12 +35,12 @@ cell = (color (dark green) $ rectangleSolid 8 8)
 
 --Life functions
 surviving :: [Pos] -> Int -> [Pos]
-surviving livings n = [p | p <- livings, (length  (intersect livings (neighbors p))) == n]
+surviving livings n = [p | p <- livings, (length (intersect livings (neighbors p))) == n]
 
 beingBorn :: [Pos] -> [Pos]
-beingBorn livings = [p | p <- candidates, length (nub (intersect candidates (neighbors p))) == 3]
+beingBorn livings = [p | p <- candidates, length (intersect candidates (neighbors p)) == 2]
                     where
-                        candidates = (nub (concat $ map neighbors livings)) \\ livings
+                        candidates = (concat $ map neighbors livings) \\ livings
 
 neighbors :: Pos -> [Pos]
 neighbors (x,y) = map wrap [(x-1,y-1),(x,y-1),(x+1,y-1),(x-1,y),(x+1,y),(x-1,y+1),(x,y+1),(x+1,y+1)]
