@@ -2,24 +2,22 @@ module Main where
 
 import Graphics.Gloss
 import Graphics.Gloss.Data.ViewPort
-import Data.Word
-import Data.ByteString (ByteString, pack)
 import Data.List
 
 main :: IO ()
-main = simulate window black 1 initialConfiguration render nextGeneration
+main = simulate window black 5 initialConfiguration render nextGeneration
     where
         window :: Display
         window = InWindow "Conway's Game of Life" (screenSize, screenSize) (20, 20)
         
         initialConfiguration :: [Pos]
-        initialConfiguration = map (\(x,y) -> (x+4,y+4)) [(4,2),(2,3),(4,3),(3,4),(4,4)]
+        initialConfiguration = [(4,2),(2,3),(4,3),(3,4),(4,4)]
         
         scaleModel :: [Pos] -> [Pos]
         scaleModel ps = map (\(x,y) -> (x*8,y*8)) ps
 
         render :: [Pos] -> Picture
-        render ps = pictures (map (\(x,y) -> translate  (x-404) (404-y) cell) (toFloats $ scaleModel ps))
+        render ps = pictures (map (\(x,y) -> translate  (x-400) (400-y) cell) (toFloats $ scaleModel ps))
         
         toFloats :: [Pos] -> [(Float,Float)]
         toFloats ps = map (\(x,y) -> (fromIntegral x, fromIntegral y)) ps
@@ -38,9 +36,7 @@ surviving :: [Pos] -> Int -> [Pos]
 surviving livings n = [p | p <- livings, (length  (intersect livings (neighbors p))) == n]
 
 beingBorn :: [Pos] -> [Pos]
-beingBorn livings = [p | p <- candidates, length (nub (intersect candidates (neighbors p))) == 3]
-                    where
-                        candidates = (nub (concat $ map neighbors livings)) \\ livings
+beingBorn ps = [p | p <- nub (concat (map neighbors ps)), notElem p ps, length (intersect ps (neighbors p)) == 3]
 
 neighbors :: Pos -> [Pos]
 neighbors (x,y) = map wrap [(x-1,y-1),(x,y-1),(x+1,y-1),(x-1,y),(x+1,y),(x-1,y+1),(x,y+1),(x+1,y+1)]
