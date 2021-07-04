@@ -5,6 +5,7 @@ import Graphics.Gloss.Data.ViewPort
 import Data.List
 import ConstantDeclarations
 import RenderingFunctions
+import InitialConfigurations
 
 main :: IO ()
 main = simulate window black simulationSpeed initialConfiguration render nextGeneration
@@ -12,8 +13,9 @@ main = simulate window black simulationSpeed initialConfiguration render nextGen
         window :: Display
         window = InWindow "Conway's Game of Life" (screenSize, screenSize) (windowOffset, windowOffset)
         
+        -- Select from the configurations in InitialConfigurations.hs
         initialConfiguration :: [Pos]
-        initialConfiguration = [(4,2),(2,3),(4,3),(3,4),(4,4)]
+        initialConfiguration = glidersByTheDozen
         
         -- The simulate function from Gloss requires the iterating function to take a Viewport and a Float
         -- even if you don't do anything with them (here we just throw them away)
