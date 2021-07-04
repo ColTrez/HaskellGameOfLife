@@ -5,7 +5,7 @@ import Graphics.Gloss.Data.ViewPort
 import Data.List
 
 main :: IO ()
-main = simulate window black 5 initialConfiguration render nextGeneration
+main = simulate window black 20 initialConfiguration render nextGeneration
     where
         window :: Display
         window = InWindow "Conway's Game of Life" (screenSize, screenSize) (20, 20)
@@ -17,7 +17,7 @@ main = simulate window black 5 initialConfiguration render nextGeneration
         scaleModel ps = map (\(x,y) -> (x*8,y*8)) ps
 
         render :: [Pos] -> Picture
-        render ps = pictures (map (\(x,y) -> translate  (x-400) (400-y) cell) (toFloats $ scaleModel ps))
+        render ps = pictures (map (\(x,y) -> translate  (floatMod 400 (x-400)) (floatMod 400 (400-y)) cell) (toFloats $ scaleModel ps))
         
         toFloats :: [Pos] -> [(Float,Float)]
         toFloats ps = map (\(x,y) -> (fromIntegral x, fromIntegral y)) ps
@@ -27,6 +27,11 @@ main = simulate window black 5 initialConfiguration render nextGeneration
 
 --matrix definitions
 type Pos = (Int,Int)--(row,column)
+
+floatMod :: Float -> Float -> Float
+floatMod n val | val > n     = floatMod n (val - (2 * n))
+               | val < (-n)  = floatMod n (val + (2 * n))
+               | otherwise   = val
 
 cell :: Picture
 cell = (color (dark green) $ rectangleSolid 8 8)
